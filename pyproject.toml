@@ -22,7 +22,7 @@ dependencies = [
   "openai",
   "anthropic",
   "rich",
-  "ruamel.yaml",
+  "pyyaml",
 #  "bs4",
 #  "jinja2",
   "docker",
