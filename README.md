@@ -16,12 +16,11 @@ It is recommended to create a python virtualenv or conda environment for this se
 
 Follow these instructions to setup D-CIPHER or the baseline or both:
 
-1. Clone this repository: `git clone https://github.com/NYU-LLM-CTF/llm_ctf_automation`
-2. `cd llm_ctf_automation`
-3. Run the setup script (will take a few minutes): `./setup_dcipher.sh` or `./setup_baseline.sh`
+1. Clone this repository.
+2. Run the setup script (will take a few minutes): `./setup_dcipher.sh` or `./setup_baseline.sh`
     1. The setup script will build the corresponding docker image, setup the docker network, and install the python dependencies
     2. You should re-run this setup if the Dockerfile or dependencies are updated
-5. Download the NYU CTF dataset (will take a few minutes): `python3 -m nyuctf.download`
+3. Download the NYU CTF dataset (will take a few minutes): `python3 -m nyuctf.download`
 
 ## Running D-CIPHER
 

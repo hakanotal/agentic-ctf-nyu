@@ -6,7 +6,7 @@ test.sh
 /logs_baseline
 /logs_single_executor
 /logs_dcipher
-
+/venv
 __pycache__/
 *.py[cod]
 *$py.class
