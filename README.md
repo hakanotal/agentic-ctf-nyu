@@ -48,3 +48,10 @@ python3 run_baseline.py -c configs/baseline/base_config.yaml --split <test|devel
 While the baseline agent code is present in the main branch, you can access the baseline's last updated version at [v20250206](https://github.com/NYU-LLM-CTF/llm_ctf_automation/releases/tag/20250206).
 This is the code used for the [NYU CTF Bench](https://nyu-llm-ctf.github.io) paper.
 
+
+# Local LLMs with Ollama
+```bash
+> python3 run_single_executor.py --config configs/single_executor/pwn_ollama_single_executor.yaml --split development --challenge 2016q-pwn-warmup --enable-autoprompt
+
+> python3 run_dcipher.py --config configs/dcipher/pwn_ollama_planner_executor.yaml --split development --challenge 2016q-pwn-warmup --enable-autoprompt
+```

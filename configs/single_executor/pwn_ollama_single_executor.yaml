@@ -4,22 +4,22 @@ experiment:
 
 executor:
   max_rounds: 100
-  model: gemma2:2b-instruct-q4_0
-  temperature: 1.0
+  model: qwen2.5-coder:14b
+  temperature: 0.5
   max_tokens: 4096
-  prompt: prompts/base_single_executor.yaml
+  prompt: prompts/pwn_single_executor.yaml
   toolset:
     - run_command
     - create_file
-    - disassemble
-    - decompile
+    # - disassemble
+    # - decompile
     - submit_flag
     - giveup
 autoprompter:
   max_rounds: 5
-  model: gemma2:2b-instruct-q4_0
-  temperature: 1.0
-  max_tokens: 4096
+  model: qwen2.5-coder:14b
+  temperature: 0.5
+  max_tokens: 8192
   prompt: prompts/autoprompt_prompt.yaml
   toolset:
     - run_command

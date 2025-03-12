@@ -4,7 +4,7 @@ experiment:
 
 planner:
   max_rounds: 30
-  model: gemini-1.5-pro
+  model: MFDoom/deepseek-r1-tool-calling:8b
   temperature: 1.0
   max_tokens: 4096
   prompt: prompts/pwn_planner_prompt.yaml
@@ -15,7 +15,7 @@ planner:
     - delegate
 executor:
   max_rounds: 100
-  model: gemini-1.5-pro
+  model: qwen2.5-coder:14b
   temperature: 1.0
   max_tokens: 4096
   len_observations: 5
@@ -28,7 +28,7 @@ executor:
     - create_file
 autoprompter:
   max_rounds: 5
-  model: gemini-1.5-pro
+  model: MFDoom/deepseek-r1-tool-calling:8b
   temperature: 1.0
   max_tokens: 4096
   prompt: prompts/autoprompt_prompt.yaml

@@ -147,8 +147,10 @@ class SingleAgent(BaseAgent):
 
     def run_one_round(self):
         response = self.backend.send(self.conversation.messages) 
+
         if response.error is not None:
-            raise AgentError(response.error)
+            print("152 Response.error: ", response.error)
+            raise AgentError(BaseException(response.error))
 
         self.current_cost += response.cost
         self.add_assistant_message(response.content, response.tool_call)
@@ -229,7 +231,8 @@ class AutoPromptAgent(BaseAgent):
     def run_one_round(self):
         response = self.backend.send(self.conversation.messages)
         if response.error is not None:
-            raise AgentError(response.error)
+            print("response.error: ", response.error)
+            raise AgentError(BaseException(response.error))
             
         self.current_cost += response.cost
         self.add_assistant_message(response.content, response.tool_call)

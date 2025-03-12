@@ -7,7 +7,7 @@ parameter:
   max_rounds: 3
   max_cost: 3
   backend: "ollama"  # Changed to ollama
-  model: "gemma2:2b-instruct-q4_0"    # Change this to your preferred Ollama model
+  model: "gemma2:2b"    # Change this to your preferred Ollama model
 
 prompts:
   system: |

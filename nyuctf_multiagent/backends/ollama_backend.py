@@ -2,7 +2,8 @@ import json
 import requests
 from typing import List, Dict, Any, Optional
 from .backend import Backend, BackendResponse
-import ollama
+import uuid
+from ollama import Client
 
 from ..conversation import MessageRole
 from ..tools import ToolCall, ToolResult
@@ -11,38 +12,33 @@ class OllamaBackend(Backend):
     
     NAME = "ollama"
     MODELS = {
-        "gemma2:2b-instruct-q4_0": {
-            "max_context": 2048,
-            "cost_per_input_token": 0,
-            "cost_per_output_token": 0
-        },
-        "llama3": {
+        "qwq:latest": {
             "max_context": 8192,
             "cost_per_input_token": 0,
             "cost_per_output_token": 0
         },
-        "llama3:8b": {
+        "hermes3:latest": {
             "max_context": 8192,
             "cost_per_input_token": 0,
             "cost_per_output_token": 0
         },
-        "llama3:70b": {
+        "llama3-groq-tool-use:latest": {
             "max_context": 8192,
             "cost_per_input_token": 0,
             "cost_per_output_token": 0
         },
-        "mistral": {
+        "qwen2.5-coder:14b": {
             "max_context": 8192,
             "cost_per_input_token": 0,
             "cost_per_output_token": 0
         },
-        "mistral:7b-instruct-v0.2": {
+        "qwen2.5:14b": {
             "max_context": 8192,
             "cost_per_input_token": 0,
             "cost_per_output_token": 0
         },
-        "codellama": {
-            "max_context": 16384,
+        "MFDoom/deepseek-r1-tool-calling:8b": {
+            "max_context": 8192,
             "cost_per_input_token": 0,
             "cost_per_output_token": 0
         }
@@ -51,17 +47,21 @@ class OllamaBackend(Backend):
     def __init__(self, role: str, model: str, tools: Dict[str, Any], api_key: str, config: Dict[str, Any]):
         super().__init__(role, model, tools, config)
         self.model = model
-        self.tool_schemas = [{"function_declarations": [self.get_tool_schema(tool) for tool in tools.values()]}]
+        self.client = Client(host='http://169.226.53.98:11434')
+        self.tool_schemas = [self.get_tool_schema(tool) for tool in tools.values()]
     
     @staticmethod
     def get_tool_schema(tool: Dict[str, Any]) -> Dict[str, Any]:
         return {
-            "name": tool.NAME,
-            "description": tool.DESCRIPTION,
-            "parameters": {
-                "type": "object",
-                "properties": {n: {"type": p[0], "description": p[1]} for n, p in tool.PARAMETERS.items()},
-                "required": list(tool.REQUIRED_PARAMETERS),
+            "type": "function",
+            "function": {
+                "name": tool.NAME,
+                "description": tool.DESCRIPTION,
+                "parameters": {
+                    "type": "object",
+                    "properties": {n: {"type": p[0], "description": p[1]} for n, p in tool.PARAMETERS.items()},
+                    "required": list(tool.REQUIRED_PARAMETERS),
+                }
             }
         }
     
@@ -72,18 +72,24 @@ class OllamaBackend(Backend):
                 # Format observation as a tool response
                 formatted_messages.append({
                     "role": "tool",
-                    "content": json.dumps(m.tool_data.result),
-                    "name": m.tool_data.name
+                    "name": m.tool_data.name,
+                    "content": json.dumps(m.tool_data.result)
                 })
             elif m.role == MessageRole.ASSISTANT:
-                msg = {"role": "assistant"}
+                msg = {
+                    "role": "assistant",
+                    "content": ""
+                }
                 if m.content is not None:
                     msg["content"] = m.content
                 if m.tool_data is not None:
                     # Include tool call information in the message
                     msg["tool_calls"] = [{
-                        "name": m.tool_data.name,
-                        "arguments": m.tool_data.arguments
+                        "type": "function",
+                        "function": {
+                            "name": m.tool_data.name,
+                            "arguments": m.tool_data.arguments,
+                        }
                     }]
                 formatted_messages.append(msg)
             else:
@@ -91,7 +97,7 @@ class OllamaBackend(Backend):
         
         try:
             # Call Ollama API with the formatted messages and tool schemas
-            response = ollama.chat(
+            response = self.client.chat(
                 model=self.model,
                 messages=formatted_messages,
                 options={
@@ -106,7 +112,7 @@ class OllamaBackend(Backend):
     
     def calculate_cost(self, response):
         # Ollama is free to use locally, so cost is 0
-        return 0
+        return 0.01
     
     def send(self, messages):
         try:
@@ -119,11 +125,12 @@ class OllamaBackend(Backend):
             
             # Check if there's a tool call in the response
             if "tool_calls" in response.get("message", {}):
+                # print(response["message"]["tool_calls"])
                 tool_data = response["message"]["tool_calls"][0]
                 tool_call = ToolCall(
-                    name=tool_data["name"],
-                    id=tool_data.get("id", "tool-call-id"),
-                    arguments=tool_data["arguments"]
+                    id=str(uuid.uuid4()),
+                    name=tool_data.function.name,
+                    arguments=tool_data.function.arguments
                 )
             
             return BackendResponse(content=content, tool_call=tool_call, cost=cost)
